@@ -52,31 +52,26 @@ Route::get('/create-database', function (Request $request) {
     }
 });
 
-
 Route::get('/databases', function () {
     try {
-        $output = [];
-        $exitCode = null;
+        // Query to fetch databases, associated users, and encoding details
+        $query = "
+            SELECT
+                SCHEMA_NAME AS database_name,
+                DEFAULT_CHARACTER_SET_NAME AS encoding,
+                DEFAULT_COLLATION_NAME AS collation,
+                GROUP_CONCAT(DISTINCT user.User) AS users
+            FROM information_schema.SCHEMATA AS schemata
+            LEFT JOIN mysql.db AS db ON schemata.SCHEMA_NAME = db.Db
+            LEFT JOIN mysql.user AS user ON db.User = user.User
+            GROUP BY schemata.SCHEMA_NAME, schemata.DEFAULT_CHARACTER_SET_NAME, schemata.DEFAULT_COLLATION_NAME
+            ORDER BY database_name;
+        ";
 
-        $username = escapeshellarg(config('host.db.username'));
-        $password = escapeshellarg(config('host.db.password'));
+        // Execute the query
+        $results = DB::select($query);
 
-        // Execute the MariaDB command to list databases
-        $command = "mysql -u $username -p$password -e 'SHOW DATABASES;' 2>&1";
-        exec($command, $output, $exitCode);
-
-        // Check if the command was successful
-        if ($exitCode !== 0) {
-            return response()->json([
-                'error' => 'Failed to fetch databases',
-                'details' => implode("\n", $output),
-            ], 500);
-        }
-
-        // Remove the header and format the output
-        $databases = array_slice($output, 1);
-
-        return response()->json($databases);
+        return response()->json($results);
     } catch (\Exception $e) {
         // Handle any errors
         return response()->json(['error' => $e->getMessage()], 500);
