@@ -58,8 +58,8 @@ Route::get('/databases', function () {
         $exitCode = null;
 
         // Get the credentials for MariaDB
-        $username = escapeshellarg(config('SERVER_DB_USERNAME'));
-        $password = escapeshellarg(config('SERVER_DB_PASSWORD'));
+        $username = escapeshellarg(config('host.db.username'));
+        $password = escapeshellarg(config('host.db.password'));
 
         // SQL query to fetch database details
         $query = "
