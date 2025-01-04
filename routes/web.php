@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-use Illuminate\Http\Request;
 
 Route::get('/create-database', function (Request $request) {
     $databaseName = $request->input('name'); // Get the database name from the request
@@ -55,50 +55,32 @@ Route::get('/create-database', function (Request $request) {
 
 Route::get('/databases', function () {
     try {
-        // Run the command to list databases and their associated users
         $output = [];
         $exitCode = null;
 
-        $username = config('host.db.username');
-        $password = config('host.db.password');
+        $username = escapeshellarg(config('host.db.username'));
+        $password = escapeshellarg(config('host.db.password'));
 
-        // Query to fetch databases and their associated users
-        $query = "
-            SELECT db.Db AS database_name, user.User AS user_name
-            FROM mysql.db AS db
-            INNER JOIN mysql.user AS user ON db.User = user.User
-            ORDER BY database_name, user_name;
-        ";
-
-        // Execute the MariaDB command
-        exec("mysql -u $username -p$password -e \"$query\" 2>&1", $output, $exitCode);
+        // Execute the MariaDB command to list databases
+        $command = "mysql -u $username -p$password -e 'SHOW DATABASES;' 2>&1";
+        exec($command, $output, $exitCode);
 
         // Check if the command was successful
         if ($exitCode !== 0) {
             return response()->json([
-                'error' => 'Failed to fetch databases and users',
+                'error' => 'Failed to fetch databases',
                 'details' => implode("\n", $output),
             ], 500);
         }
 
-        // Parse the output
-        $parsedOutput = [];
-        $header = null;
+        // Remove the header and format the output
+        $databases = array_slice($output, 1);
 
-        foreach ($output as $line) {
-            $columns = preg_split('/\s+/', $line);
-            if (!$header) {
-                $header = $columns;
-                continue;
-            }
-            $parsedOutput[] = array_combine($header, $columns);
-        }
-
-        // Return the parsed output as JSON
-        return response()->json($parsedOutput);
+        return response()->json($databases);
     } catch (\Exception $e) {
         // Handle any errors
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
 
