@@ -53,15 +53,16 @@ Route::get('/create-database', function (Request $request) {
 });
 
 Route::get('/databases', function () {
+    $host = '127.0.0.1';
+    $username = config('host.db.username');
+    $password = config('host.db.password');
+
     try {
-        $output = [];
-        $exitCode = null;
+        $conn = new mysqli($host, $username, $password);
+        if ($conn->connect_error) {
+            throw new Exception('Connection failed: ' . $conn->connect_error);
+        }
 
-        // Get the credentials for MariaDB
-        $username = escapeshellarg(config('host.db.username'));
-        $password = escapeshellarg(config('host.db.password'));
-
-        // SQL query to fetch database details
         $query = "
             SELECT
                 SCHEMA_NAME AS database_name,
@@ -75,41 +76,18 @@ Route::get('/databases', function () {
             ORDER BY SCHEMA_NAME;
         ";
 
-        // Command to execute the query
-        $command = "mysql -u $username -p$password -e \"$query\" 2>&1";
+        $result = $conn->query($query);
 
-        // Run the command
-        exec($command, $output, $exitCode);
-
-        // Check for errors
-        if ($exitCode !== 0) {
-            return response()->json([
-                'error' => 'Failed to fetch databases and users',
-                'details' => implode("\n", $output),
-            ], 500);
+        $databases = [];
+        while ($row = $result->fetch_assoc()) {
+            $databases[] = $row;
         }
 
-        // Parse the output
-        $parsedOutput = [];
-        $headers = null;
+        $conn->close();
 
-        foreach ($output as $line) {
-            $columns = preg_split('/\s+/', trim($line));
-
-            if (!$headers) {
-                // First line contains headers
-                $headers = $columns;
-                continue;
-            }
-
-            // Map values to headers
-            $parsedOutput[] = array_combine($headers, $columns);
-        }
-
-        return response()->json($parsedOutput);
-    } catch (\Exception $e) {
+        return response()->json($databases);
+    } catch (Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
-
 
