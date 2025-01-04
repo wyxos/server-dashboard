@@ -10,7 +10,7 @@ Route::get('/', function () {
 
 use Illuminate\Http\Request;
 
-Route::post('/create-database', function (Request $request) {
+Route::get('/create-database', function (Request $request) {
     $databaseName = $request->input('name'); // Get the database name from the request
 
     // Validate the input
