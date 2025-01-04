@@ -8,6 +8,51 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+use Illuminate\Http\Request;
+
+Route::post('/create-database', function (Request $request) {
+    $databaseName = $request->input('name'); // Get the database name from the request
+
+    // Validate the input
+    if (empty($databaseName)) {
+        return response()->json(['error' => 'Database name is required.'], 400);
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $databaseName)) {
+        return response()->json(['error' => 'Invalid database name. Only letters, numbers, and underscores are allowed.'], 400);
+    }
+
+    try {
+        // Construct the shell command
+        $username = escapeshellarg(config('database.connections.mysql.username'));
+        $password = escapeshellarg(config('database.connections.mysql.password'));
+        $escapedDatabaseName = escapeshellarg($databaseName);
+
+        $command = "mysql -u $username -p$password -e 'CREATE DATABASE $escapedDatabaseName;' 2>&1";
+
+        // Execute the command
+        $output = [];
+        $exitCode = null;
+        exec($command, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            return response()->json([
+                'error' => 'Failed to create database',
+                'details' => implode("\n", $output)
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Database '$databaseName' created successfully."
+        ]);
+    } catch (\Exception $e) {
+        // Handle errors
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+
 Route::get('/databases', function () {
     try {
         // Run the command to list databases and their associated users
