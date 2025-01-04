@@ -14,8 +14,8 @@ Route::get('/databases', function () {
         $output = [];
         $exitCode = null;
 
-        $username = env('SERVER_DB_USERNAME');
-        $password = env('SERVER_DB_PASSWORD');
+        $username = config('server.db.username');
+        $password = config('server.db.password');
 
         // Execute the MariaDB command
         exec("mysql -u $username -p$password -e 'SHOW DATABASES;' 2>&1", $output, $exitCode);
