@@ -24,8 +24,8 @@ Route::get('/create-database', function (Request $request) {
 
     try {
         // Construct the shell command
-        $username = escapeshellarg(config('database.connections.mysql.username'));
-        $password = escapeshellarg(config('database.connections.mysql.password'));
+        $username = escapeshellarg(config('host.db.username'));
+        $password = escapeshellarg(config('host.db.password'));
         $escapedDatabaseName = escapeshellarg($databaseName);
 
         $command = "mysql -u $username -p$password -e 'CREATE DATABASE $escapedDatabaseName;' 2>&1";
