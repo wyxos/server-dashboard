@@ -54,26 +54,60 @@ Route::get('/create-database', function (Request $request) {
 
 Route::get('/databases', function () {
     try {
-        // Query to fetch databases, associated users, and encoding details
+        $output = [];
+        $exitCode = null;
+
+        // Get the credentials for MariaDB
+        $username = escapeshellarg(config('SERVER_DB_USERNAME'));
+        $password = escapeshellarg(config('SERVER_DB_PASSWORD'));
+
+        // SQL query to fetch database details
         $query = "
             SELECT
                 SCHEMA_NAME AS database_name,
                 DEFAULT_CHARACTER_SET_NAME AS encoding,
                 DEFAULT_COLLATION_NAME AS collation,
-                GROUP_CONCAT(DISTINCT user.User) AS users
-            FROM information_schema.SCHEMATA AS schemata
-            LEFT JOIN mysql.db AS db ON schemata.SCHEMA_NAME = db.Db
-            LEFT JOIN mysql.user AS user ON db.User = user.User
-            GROUP BY schemata.SCHEMA_NAME, schemata.DEFAULT_CHARACTER_SET_NAME, schemata.DEFAULT_COLLATION_NAME
-            ORDER BY database_name;
+                (SELECT GROUP_CONCAT(DISTINCT User)
+                 FROM mysql.db
+                 WHERE mysql.db.Db = SCHEMA_NAME) AS users
+            FROM information_schema.SCHEMATA
+            WHERE SCHEMA_NAME NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
+            ORDER BY SCHEMA_NAME;
         ";
 
-        // Execute the query
-        $results = DB::select($query);
+        // Command to execute the query
+        $command = "mysql -u $username -p$password -e \"$query\" 2>&1";
 
-        return response()->json($results);
+        // Run the command
+        exec($command, $output, $exitCode);
+
+        // Check for errors
+        if ($exitCode !== 0) {
+            return response()->json([
+                'error' => 'Failed to fetch databases and users',
+                'details' => implode("\n", $output),
+            ], 500);
+        }
+
+        // Parse the output
+        $parsedOutput = [];
+        $headers = null;
+
+        foreach ($output as $line) {
+            $columns = preg_split('/\s+/', trim($line));
+
+            if (!$headers) {
+                // First line contains headers
+                $headers = $columns;
+                continue;
+            }
+
+            // Map values to headers
+            $parsedOutput[] = array_combine($headers, $columns);
+        }
+
+        return response()->json($parsedOutput);
     } catch (\Exception $e) {
-        // Handle any errors
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
