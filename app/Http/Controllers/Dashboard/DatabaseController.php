@@ -122,4 +122,51 @@ class DatabaseController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        $database = Database::query()->findOrFail($id);
+
+        $name = $database->name;
+
+        try {
+            // Database connection details
+            $host = '127.0.0.1';
+            $username = config('host.db.username');
+            $password = config('host.db.password');
+
+            // Establish a connection using mysqli
+            $conn = new mysqli($host, $username, $password);
+
+            if ($conn->connect_error) {
+                throw new Exception('Connection failed: ' . $conn->connect_error);
+            }
+
+            // SQL to drop the database
+            $sql = "DROP DATABASE `$name`";
+
+            if ($conn->query($sql) === FALSE) {
+                throw new Exception('Error dropping database: ' . $conn->error);
+            }
+
+            // Delete the database record from the model
+            $database = Database::where('name', $name)->first();
+            if ($database) {
+                $database->users()->detach(); // Detach related users
+                $database->delete(); // Delete the database record
+            }
+
+            $conn->close();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Database '$name' deleted successfully.",
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
 }

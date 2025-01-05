@@ -1,6 +1,9 @@
 <script setup>
-import {Listing, vn} from "@wyxos/vision";
+import {Action, Listing, vn, WyxosAction, WyxosDeleteButton} from "@wyxos/vision";
 import {onMounted} from "vue";
+import {createRouter as router, useRouter} from "vue-router";
+
+const $router = useRouter()
 
 const { route } = vn
 
@@ -13,6 +16,11 @@ const databases = Listing.create({
     name: '',
 })
     .loadFrom('/dashboard/resources/databases')
+
+const dbDelete = Action.create((row) => '/dashboard/resources/database/' + row.id)
+    .before(() => confirm('Are you sure you want to delete this item?'))
+    .after(() => databases.refresh())
+    .setKeyResolver((row) => row.id)
 
 onMounted(() => {
     databases.load();
@@ -49,7 +57,7 @@ onMounted(() => {
                     <wyxos-action class="button">
                         <i class="fas fa-eye"></i>
                     </wyxos-action>
-                    <wyxos-action class="button danger"></wyxos-action>
+                    <wyxos-delete-button class="button danger" :action="dbDelete" :id="row.id"></wyxos-delete-button>
                 </div>
             </o-table-column>
         </o-table>

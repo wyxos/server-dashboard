@@ -19,6 +19,8 @@ Route::prefix('/dashboard')
             Route::get('/databases', \App\Listings\Databases::class)->name('dashboard.databases.index');
 
             Route::post('/database', [DatabaseController::class, 'store'])->name('dashboard.databases.store');
+
+            Route::delete('/database/{id}', [DatabaseController::class, 'destroy'])->name('dashboard.databases.destroy');
         });
 
         Route::get('/{page?}', function () {
