@@ -18,8 +18,8 @@ const databases = Listing.create({
     .loadFrom('/dashboard/resources/databases')
 
 const dbDelete = Action.create((row) => '/dashboard/resources/database/' + row.id)
-    .before(() => confirm('Are you sure you want to delete this item?'))
-    .after(() => databases.refresh())
+    .onBefore(() => confirm('Are you sure you want to delete this item?'))
+    .onSuccess(() => databases.refresh())
     .setKeyResolver((row) => row.id)
 
 onMounted(() => {
