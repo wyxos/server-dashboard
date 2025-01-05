@@ -4,15 +4,15 @@ import {createApp} from 'vue'
 
 import App from './App.vue'
 
-import Dashboard from './views/Dashboard.vue'
+import Home from './views/Home.vue'
 
 import {createRouter, createWebHistory} from 'vue-router'
 
 const routes = [
     {
         path: '/',
-        component: Dashboard,
-        name: 'dashboard',
+        component: Home,
+        name: 'home',
     }
 ]
 
