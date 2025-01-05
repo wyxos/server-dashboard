@@ -28,6 +28,6 @@
             </nav>
         </aside>
 
-        <router-view class="flex-1"></router-view>
+        <router-view class="flex-1 flex flex-col gap-4 p-4"></router-view>
     </div>
 </template>

@@ -22,6 +22,11 @@ const routes = [
         name: 'databases',
     },
     {
+        path: '/database/create',
+        component: () => import('./views/CreateDatabase.vue'),
+        name: 'database.create',
+    },
+    {
         path: '/cron',
         component: () => import('./views/Cron.vue'),
         name: 'cron',

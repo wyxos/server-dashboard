@@ -23,7 +23,8 @@ Route::prefix('/dashboard')
 
         Route::get('/{page?}', function () {
             return view('dashboard');
-        })->name('dashboard');
+        })->name('dashboard')
+            ->where('page', '.*');
     });
 
 

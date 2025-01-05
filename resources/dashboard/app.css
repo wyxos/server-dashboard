@@ -11,7 +11,29 @@
         @apply p-2 border border-gray-200;
     }
 
-    .cta-icon {
-        @apply rounded p-2 text-slate-900 bg-slate-100 hover:bg-slate-300;
+    input, select, textarea {
+        @apply !rounded-md text-slate-800;
+    }
+}
+
+@layer components {
+    .button {
+        @apply rounded p-2  bg-blue-600 hover:bg-blue-800;
+
+        &.danger {
+            @apply bg-red-500 hover:bg-red-700 text-white;
+        }
+
+        &:disabled {
+            @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+        }
+    }
+
+    .form-group {
+        @apply grid grid-cols-2 items-center;
+    }
+
+    .wyxos-error {
+        @apply  text-sm bg-red-600 p-1 rounded font-semibold text-center;
     }
 }
