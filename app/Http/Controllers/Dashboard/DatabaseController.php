@@ -73,6 +73,7 @@ class DatabaseController extends Controller
 
     public function store()
     {
+        // Validate the request input
         request()->validate([
             'name' => 'required|string|regex:/^[a-zA-Z0-9_]+$/',
             'encoding' => 'nullable|string',

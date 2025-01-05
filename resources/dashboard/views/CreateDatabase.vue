@@ -3,8 +3,8 @@ import { FormBuilder } from '@wyxos/vision';
 
 const form = FormBuilder.create({
     name: '',
-    encoding: 'utf8',
-    collation: 'utf8_general_ci',
+    encoding: 'utf8mb4',
+    collation: 'utf8mb4_unicode_ci',
     project: [],
     users: [],
 })
