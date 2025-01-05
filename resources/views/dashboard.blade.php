@@ -21,7 +21,7 @@
 @vite('resources/dashboard/app.js')
 </head>
 <body>
-<div id="app" class="bg-slate-900 text-white">
+<div id="app">
 
 </div>
 </body>
