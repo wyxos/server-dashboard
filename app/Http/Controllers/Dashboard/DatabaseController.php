@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Database;
+use App\Models\DatabaseUser;
 use Exception;
 use Illuminate\Http\Request;
 use mysqli;
@@ -38,6 +40,27 @@ class DatabaseController extends Controller
             $databases = [];
             while ($row = $result->fetch_assoc()) {
                 $databases[] = $row;
+
+                $database = Database::query()->updateOrCreate(
+                    ['name' => $row['database_name']],
+                    [
+                        'encoding' => $row['encoding'],
+                        'collation' => $row['collation'],
+                    ]
+                );
+
+                // Parse users from the query result
+                $users = !empty($row['users']) ? explode(',', $row['users']) : [];
+
+                // Sync users with the pivot table
+                $userIds = [];
+                foreach ($users as $username) {
+                    $user = DatabaseUser::firstOrCreate(['username' => $username]);
+                    $userIds[] = $user->id;
+                }
+
+                // Sync the pivot table
+                $database->users()->sync($userIds);
             }
 
             $conn->close();
@@ -50,7 +73,7 @@ class DatabaseController extends Controller
 
     public function store()
     {
-        $databaseName = $request->input('name'); // Get the database name from the request
+        $databaseName = request()->input('name'); // Get the database name from the request
 
         // Validate the input
         if (empty($databaseName)) {

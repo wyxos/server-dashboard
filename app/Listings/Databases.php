@@ -10,7 +10,8 @@ class Databases extends ListingBase
 {
     public function baseQuery(): Builder
     {
-        return Database::query();
+        return Database::query()
+            ->with("users");
     }
 
     public function filters($base)

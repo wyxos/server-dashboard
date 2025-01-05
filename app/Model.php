@@ -20,4 +20,7 @@ use Carbon\Carbon;
 class Model extends BaseModel
 {
 
+    protected $guarded = [
+        'id'
+    ];
 }

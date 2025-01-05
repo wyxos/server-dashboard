@@ -4,10 +4,14 @@
 
 @layer base {
     table {
-        @apply w-full;
+        @apply w-full text-white;
     }
 
     th, td {
         @apply p-2 border border-gray-200;
+    }
+
+    .cta-icon {
+        @apply rounded p-2 text-slate-900 bg-slate-100 hover:bg-slate-300;
     }
 }

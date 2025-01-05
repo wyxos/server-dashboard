@@ -21,14 +21,28 @@ onMounted(() => {
     <div class="db-list">
         <h2>Databases</h2>
         <o-table v-bind="databases.config">
-            <o-table-column label="Database Name" key="database_name"/>
-            <o-table-column label="Encoding" key="encoding"/>
-            <o-table-column label="Collation" key="collation"/>
-            <o-table-column label="Project" key="project"/>
-            <o-table-column label="Actions">
-                <template #default="{ row }">
-                    <o-button @click="viewDatabase(row.database_name)">View</o-button>
-                </template>
+            <o-table-column label="Database Name" v-slot="{row}">
+                {{ row.name }}
+            </o-table-column>
+            <o-table-column label="Encoding" v-slot="{row}">
+                {{ row.collation }}
+            </o-table-column>
+            <o-table-column label="Collation" v-slot="{row}">
+                {{ row.encoding }}
+            </o-table-column>
+            <o-table-column label="Projects" v-slot="{row}">
+                {{ row.project }}
+            </o-table-column>
+            <o-table-column label="Users" v-slot="{row}">
+                {{ row.users.join(', ') }}
+            </o-table-column>
+            <o-table-column label="Actions" v-slot="{row }">
+                <div class="flex gap-2">
+                    <wyxos-action class="cta-icon">
+                        <i class="fas fa-eye"></i>
+                    </wyxos-action>
+                    <wyxos-action class="cta-icon"></wyxos-action>
+                </div>
             </o-table-column>
         </o-table>
     </div>
