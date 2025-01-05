@@ -1,13 +1,9 @@
 import './app.css'
-
 import {createApp} from 'vue'
-
 import App from './App.vue'
-
 import Home from './views/Home.vue'
-
 import {createRouter, createWebHistory} from 'vue-router'
-import Applications from "./views/Applications.vue";
+import Vision from '@wyxos/vision'
 
 const routes = [
     {
@@ -52,4 +48,4 @@ const router = createRouter({
     routes,
 })
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(Vision).use(router).mount('#app')

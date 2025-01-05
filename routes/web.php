@@ -13,9 +13,11 @@ Route::get('/', function () {
 Route::prefix('/dashboard')
     ->middleware(['auth', 'verified'])
     ->group(function () {
-        Route::get('/databases', [DatabaseController::class, 'index'])->name('dashboard.databases.index');
+        Route::prefix('resources')->group(function(){
+            Route::get('/databases', \App\Listings\Databases::class)->name('dashboard.databases.index');
 
-        Route::post('/database', [DatabaseController::class, 'store'])->name('dashboard.databases.store');
+            Route::post('/database', [DatabaseController::class, 'store'])->name('dashboard.databases.store');
+        });
 
         Route::get('/{page?}', function () {
             return view('dashboard');
